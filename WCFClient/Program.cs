@@ -31,8 +31,10 @@ namespace WCFClient
 
         private static void StartWcfNetTcp()
         {
+            var binding = new NetTcpBinding();
+            binding.Security.Mode = SecurityMode.None;
             ChannelFactory<IStringDuplicator> tcpFactory = new ChannelFactory<IStringDuplicator>(
-                new NetTcpBinding(), 
+                binding, 
                 new EndpointAddress("net.tcp://desktop-aqhf511:9986/TcpDuplicate"));
 
             IStringDuplicator tcpProxy = tcpFactory.CreateChannel();

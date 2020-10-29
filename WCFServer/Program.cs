@@ -36,8 +36,10 @@ namespace WCFServer
                 typeof(StringDuplicator), 
                 new Uri($"net.tcp://{System.Net.Dns.GetHostName()}:9986")))
             {
+                var binding = new NetTcpBinding();
+                binding.Security.Mode = SecurityMode.None;
                 host.AddServiceEndpoint(typeof(IStringDuplicator),
-                  new NetTcpBinding(),
+                  binding,
                   "TcpDuplicate");
 
                 host.Open();
