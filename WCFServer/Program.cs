@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using WCFCommon.WCF.NetTcp;
 using WCFCommon.WCF.NetPipe;
 using System.ServiceModel.Channels;
+using WCFCommon.Helpers;
+using System.Net;
 
 namespace WCFServer
 {
@@ -46,6 +48,8 @@ namespace WCFServer
 
                 foreach (var endpoint in host.Description.Endpoints)
                     Console.WriteLine($"Endpoint Uri: {endpoint.ListenUri}");
+
+                ServerNameResolver.SaveServerName();
 
                 Console.WriteLine("Service is available. Press <ENTER> to exit.");
                 Console.ReadLine();

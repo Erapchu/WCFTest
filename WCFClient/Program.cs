@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using WCFCommon.Helpers;
 using WCFCommon.WCF.NetPipe;
 using WCFCommon.WCF.NetTcp;
 
@@ -31,15 +32,24 @@ namespace WCFClient
 
         private static void StartWcfNetTcp()
         {
+            var serverName = ServerNameResolver.GetServerName();
+            if (serverName is null)
+            {
+                Console.Write("Please, input server name (computer name from PC Properties): ");
+                serverName = Console.ReadLine();
+            }
+            serverName = serverName.Trim();
+
             var binding = new NetTcpBinding();
             binding.Security.Mode = SecurityMode.None;
             ChannelFactory<IStringDuplicator> tcpFactory = new ChannelFactory<IStringDuplicator>(
                 binding, 
-                new EndpointAddress("net.tcp://desktop-aqhf511:9986/TcpDuplicate"));
+                new EndpointAddress($"net.tcp://{serverName}:9986/TcpDuplicate"));
 
             IStringDuplicator tcpProxy = tcpFactory.CreateChannel();
 
             Console.WriteLine($"Created Net Tcp channel on endpoint: \"{tcpFactory.Endpoint.ListenUri}\"");
+            Console.WriteLine("Enter some text to send it on server:");
 
             while (true)
             {
