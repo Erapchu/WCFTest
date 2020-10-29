@@ -34,7 +34,7 @@ namespace WCFServer
         {
             using (ServiceHost host = new ServiceHost(
                 typeof(StringDuplicator), 
-                new Uri("net.tcp://duplicator")))
+                new Uri($"net.tcp://{System.Net.Dns.GetHostName()}:9986")))
             {
                 host.AddServiceEndpoint(typeof(IStringDuplicator),
                   new NetTcpBinding(),

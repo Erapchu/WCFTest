@@ -31,18 +31,18 @@ namespace WCFClient
 
         private static void StartWcfNetTcp()
         {
-            ChannelFactory<IStringDuplicator> pipeFactory = new ChannelFactory<IStringDuplicator>(
+            ChannelFactory<IStringDuplicator> tcpFactory = new ChannelFactory<IStringDuplicator>(
                 new NetTcpBinding(), 
-                new EndpointAddress("net.tcp://duplicator/TcpDuplicate"));
+                new EndpointAddress("net.tcp://desktop-aqhf511:9986/TcpDuplicate"));
 
-            IStringDuplicator pipeProxy = pipeFactory.CreateChannel();
+            IStringDuplicator tcpProxy = tcpFactory.CreateChannel();
 
-            Console.WriteLine("Created Net Tcp channel on endpoint: \"net.tcp://duplicator/TcpDuplicate\"");
+            Console.WriteLine($"Created Net Tcp channel on endpoint: \"{tcpFactory.Endpoint.ListenUri}\"");
 
             while (true)
             {
                 string str = Console.ReadLine();
-                Console.WriteLine("Server: " + pipeProxy.MakeDuplicate(str));
+                Console.WriteLine("Server: " + tcpProxy.MakeDuplicate(str));
             }
         }
 
