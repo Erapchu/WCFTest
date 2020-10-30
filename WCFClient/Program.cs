@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Discovery;
 using System.Text;
 using System.Threading.Tasks;
 using WCFCommon.Helpers;
@@ -32,20 +33,28 @@ namespace WCFClient
 
         private static void StartWcfNetTcp()
         {
-            var serverName = ServerNameResolver.GetServerName();
-            if (serverName is null)
+            //Find service host
+            var endpointDiscoveryMetadata = FindService();
+            if (endpointDiscoveryMetadata is null)
             {
-                Console.Write("Please, input server name (computer name from PC Properties): ");
-                serverName = Console.ReadLine();
+                Console.WriteLine("Please, firstly start a host.");
+                Console.ReadLine();
+                return;
             }
-            serverName = serverName.Trim();
+            foreach(var listenUri in endpointDiscoveryMetadata.ListenUris)
+                Console.WriteLine($"Finded address: {listenUri}");
 
+            //Endpoint address
+            var availableEndpointAddress = endpointDiscoveryMetadata.ListenUris.FirstOrDefault();
+            var endpointAddress = new EndpointAddress(availableEndpointAddress);
+
+            //Net Tcp Binding
             var binding = new NetTcpBinding();
             binding.Security.Mode = SecurityMode.None;
-            ChannelFactory<IStringDuplicator> tcpFactory = new ChannelFactory<IStringDuplicator>(
-                binding, 
-                new EndpointAddress($"net.tcp://{serverName}:9986/TcpDuplicate"));
 
+            //Channel factory
+            var tcpFactory = new ChannelFactory<IStringDuplicator>(binding, endpointAddress);
+            tcpFactory.Endpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
             IStringDuplicator tcpProxy = tcpFactory.CreateChannel();
 
             Console.WriteLine($"Created Net Tcp channel on endpoint: \"{tcpFactory.Endpoint.ListenUri}\"");
@@ -55,6 +64,38 @@ namespace WCFClient
             {
                 string str = Console.ReadLine();
                 Console.WriteLine("Server: " + tcpProxy.MakeDuplicate(str));
+            }
+        }
+
+        private static EndpointDiscoveryMetadata FindService()
+        {
+            //Create Discovery Client
+            DiscoveryClient discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
+
+            //Create Find Criteria
+            var findCriteria = new FindCriteria(typeof(IStringDuplicator))
+            {
+                Duration = TimeSpan.FromSeconds(5)
+            };
+
+            //Searching
+            FindResponse findResponse = null;
+            for (int i = 0; i < 3; i++)
+            {
+                Console.WriteLine($"{i + 1} attempt to find server");
+                findResponse = discoveryClient.Find(findCriteria);
+                if (findResponse.Endpoints.Count > 0)
+                    break;
+            }
+            discoveryClient.Close();
+
+            if (findResponse.Endpoints.Count > 0)
+            {
+                return findResponse.Endpoints[0];
+            }
+            else
+            {
+                return null;
             }
         }
 

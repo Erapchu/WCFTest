@@ -9,6 +9,7 @@ using WCFCommon.WCF.NetPipe;
 using System.ServiceModel.Channels;
 using WCFCommon.Helpers;
 using System.Net;
+using System.ServiceModel.Discovery;
 
 namespace WCFServer
 {
@@ -34,26 +35,29 @@ namespace WCFServer
 
         private static void StartWcfNetTcp()
         {
-            using (ServiceHost host = new ServiceHost(
-                typeof(StringDuplicator), 
-                new Uri($"net.tcp://{System.Net.Dns.GetHostName()}:9986")))
+            using (var host = new ServiceHost(typeof(StringDuplicator), new Uri($"net.tcp://{Dns.GetHostName()}")))
             {
+                //Net Tcp Binding
                 var binding = new NetTcpBinding();
                 binding.Security.Mode = SecurityMode.None;
-                host.AddServiceEndpoint(typeof(IStringDuplicator),
-                  binding,
-                  "TcpDuplicate");
 
+                //Endpoint (target)
+                var duplicatorEndpoint = host.AddServiceEndpoint(typeof(IStringDuplicator), binding, "TcpDuplicate");
+                duplicatorEndpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
+
+                //Discovery behavior and endpoint
+                host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+                host.AddServiceEndpoint(new UdpDiscoveryEndpoint());
+
+                //Open service
                 host.Open();
 
-                foreach (var endpoint in host.Description.Endpoints)
-                    Console.WriteLine($"Endpoint Uri: {endpoint.ListenUri}");
-
-                ServerNameResolver.SaveServerName();
-
+                foreach (var channelDispatcher in host.ChannelDispatchers)
+                    Console.WriteLine($"Endpoint Uri: {channelDispatcher.Listener.Uri}");
                 Console.WriteLine("Service is available. Press <ENTER> to exit.");
                 Console.ReadLine();
 
+                //Close service
                 host.Close();
             }
         }
