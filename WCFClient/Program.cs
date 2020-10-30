@@ -75,12 +75,12 @@ namespace WCFClient
             //Create Find Criteria
             var findCriteria = new FindCriteria(typeof(IStringDuplicator))
             {
-                Duration = TimeSpan.FromSeconds(5)
+                Duration = TimeSpan.FromSeconds(2)
             };
 
             //Searching
             FindResponse findResponse = null;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 11; i++)
             {
                 Console.WriteLine($"{i + 1} attempt to find server");
                 findResponse = discoveryClient.Find(findCriteria);
