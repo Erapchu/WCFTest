@@ -46,14 +46,16 @@ namespace WCFServer
                 duplicatorEndpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
 
                 //Discovery behavior and endpoint
-                host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+                var discoveryBehavior = new ServiceDiscoveryBehavior();
+                discoveryBehavior.AnnouncementEndpoints.Add(new UdpAnnouncementEndpoint());
+                host.Description.Behaviors.Add(discoveryBehavior);
                 host.AddServiceEndpoint(new UdpDiscoveryEndpoint());
 
                 //Open service
                 host.Open();
 
                 foreach (var channelDispatcher in host.ChannelDispatchers)
-                    Console.WriteLine($"Endpoint Uri: {channelDispatcher.Listener.Uri}");
+                    Console.WriteLine($"Endpoint Uri: {channelDispatcher.Listener?.Uri}");
                 Console.WriteLine("Service is available. Press <ENTER> to exit.");
                 Console.ReadLine();
 
