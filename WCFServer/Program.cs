@@ -46,9 +46,10 @@ namespace WCFServer
                 duplicatorEndpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
 
                 //Discovery behavior and endpoint
-                var discoveryBehavior = new ServiceDiscoveryBehavior();
+                host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+                /*var discoveryBehavior = new ServiceDiscoveryBehavior();
                 discoveryBehavior.AnnouncementEndpoints.Add(new UdpAnnouncementEndpoint());
-                host.Description.Behaviors.Add(discoveryBehavior);
+                host.Description.Behaviors.Add(discoveryBehavior);*/
                 host.AddServiceEndpoint(new UdpDiscoveryEndpoint());
 
                 //Open service
