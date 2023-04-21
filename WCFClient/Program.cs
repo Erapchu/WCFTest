@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using System.Text;
 using System.Threading.Tasks;
-using WCFCommon.Helpers;
 using WCFCommon.WCF.NetPipe;
 using WCFCommon.WCF.NetTcp;
 
@@ -41,7 +38,7 @@ namespace WCFClient
                 Console.ReadLine();
                 return;
             }
-            foreach(var listenUri in endpointDiscoveryMetadata.ListenUris)
+            foreach (var listenUri in endpointDiscoveryMetadata.ListenUris)
                 Console.WriteLine($"Finded address: {listenUri}");
 
             //Endpoint address
@@ -113,7 +110,7 @@ namespace WCFClient
         private static void StartWcfNetPipe()
         {
             ChannelFactory<IStringReverser> pipeFactory = new ChannelFactory<IStringReverser>(
-                new NetNamedPipeBinding(), 
+                new NetNamedPipeBinding(),
                 new EndpointAddress("net.pipe://localhost/PipeReverse"));
 
             IStringReverser pipeProxy = pipeFactory.CreateChannel();

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace WCFCommon.WCF.NetTcp
 {
@@ -13,7 +9,7 @@ namespace WCFCommon.WCF.NetTcp
     {
         public IAsyncResult BeginServiceAsyncMethod(string msg, AsyncCallback callback, object asyncState)
         {
-            Thread.Sleep(10000);
+            //Thread.Sleep(10000);
             Console.WriteLine("BeginServiceAsyncMethod called with: \"{0}\"", msg);
             return new CompletedAsyncResult<string>(msg);
         }

@@ -1,15 +1,9 @@
 ﻿using System;
-using System.ServiceModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ServiceModel.Channels;
-using WCFCommon.Helpers;
 using System.Net;
+using System.ServiceModel;
 using System.ServiceModel.Discovery;
-using WCFCommon.WCF.NetTcp;
 using WCFCommon.WCF.NetPipe;
+using WCFCommon.WCF.NetTcp;
 
 namespace WCFServer
 {
@@ -68,7 +62,7 @@ namespace WCFServer
         private static void StartWcfNetPipe()
         {
             using (ServiceHost host = new ServiceHost(
-                typeof(StringReverser), 
+                typeof(StringReverser),
                 new Uri("net.pipe://reverser")))
             {
                 host.AddServiceEndpoint(typeof(IStringReverser),
