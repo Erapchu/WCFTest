@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WCFCommon.WCF.NetTcp;
-using WCFCommon.WCF.NetPipe;
 using System.ServiceModel.Channels;
 using WCFCommon.Helpers;
 using System.Net;
 using System.ServiceModel.Discovery;
+using WCFCommon.WCF.NetTcp;
+using WCFCommon.WCF.NetPipe;
 
 namespace WCFServer
 {

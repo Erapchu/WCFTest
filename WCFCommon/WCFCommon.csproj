@@ -46,6 +46,7 @@
     <Compile Include="Helpers\ServerNameResolver.cs" />
     <Compile Include="Interfaces\IWcfBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WCF\CompletedAsyncResult.cs" />
     <Compile Include="WCF\NetPipe\IStringReverser.cs" />
     <Compile Include="WCF\NetPipe\StringReverser.cs" />
     <Compile Include="WCF\NetTcp\IStringDuplicator.cs" />
