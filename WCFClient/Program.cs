@@ -62,10 +62,10 @@ namespace WCFClient
                 try
                 {
                     string str = Console.ReadLine();
-                    Console.WriteLine("Server: " + tcpProxy.MakeDuplicate(str));
+                    Console.WriteLine("Sync response: " + tcpProxy.MakeDuplicate(str));
 
                     var res = Task.Factory.FromAsync(tcpProxy.BeginServiceAsyncMethod(str, (a) => { }, null), (a) => tcpProxy.EndServiceAsyncMethod(a)).Result;
-                    Console.WriteLine(res);
+                    Console.WriteLine("Async response: " + res);
                 }
                 catch (Exception ex)
                 {

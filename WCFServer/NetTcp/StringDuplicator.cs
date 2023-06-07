@@ -12,7 +12,7 @@ namespace WCFServer.NetTcp
         {
             //Thread.Sleep(10000);
             Console.WriteLine("BeginServiceAsyncMethod called with: \"{0}\"", msg);
-            return new CompletedAsyncResult<string>(msg);
+            return new CompletedAsyncResult<string>(MakeDuplicate(msg));
         }
 
         public string EndServiceAsyncMethod(IAsyncResult result)
