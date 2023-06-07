@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AutoUpdater.Common.Communications
+namespace WCFCommon.Wrappers
 {
     public class WcfServiceHost
     {

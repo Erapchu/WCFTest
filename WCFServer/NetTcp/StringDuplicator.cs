@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ServiceModel;
-using System.Threading;
+using WCFCommon.WCF;
+using WCFCommon.WCF.NetTcp;
 
-namespace WCFCommon.WCF.NetTcp
+namespace WCFServer.NetTcp
 {
     [ServiceBehavior(AddressFilterMode = AddressFilterMode.Any)]
     public class StringDuplicator : IStringDuplicator

@@ -4,6 +4,8 @@ using System.ServiceModel;
 using System.ServiceModel.Discovery;
 using WCFCommon.WCF.NetPipe;
 using WCFCommon.WCF.NetTcp;
+using WCFServer.NetPipe;
+using WCFServer.NetTcp;
 
 namespace WCFServer
 {
