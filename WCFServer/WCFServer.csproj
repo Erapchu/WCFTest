@@ -8,10 +8,11 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>WCFServer</RootNamespace>
     <AssemblyName>WCFServer</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -53,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WCFCommon\WCFCommon.csproj">
-      <Project>{0624898c-748f-4f56-8dbe-89fc73019ca4}</Project>
+      <Project>{0624898C-748F-4F56-8DBE-89FC73019CA4}</Project>
       <Name>WCFCommon</Name>
     </ProjectReference>
   </ItemGroup>
