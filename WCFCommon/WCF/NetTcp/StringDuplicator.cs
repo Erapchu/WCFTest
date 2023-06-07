@@ -16,6 +16,7 @@ namespace WCFCommon.WCF.NetTcp
 
         public string EndServiceAsyncMethod(IAsyncResult result)
         {
+            //Thread.Sleep(10000);
             CompletedAsyncResult<string> r = result as CompletedAsyncResult<string>;
             Console.WriteLine("EndServiceAsyncMethod called with: \"{0}\"", r.Data);
             return r.Data;
