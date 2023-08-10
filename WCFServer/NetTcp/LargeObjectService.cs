@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.ServiceModel;
-using WCFCommon.WCF.NetPipe;
+using WCFCommon.WCF.NetTcp;
 
 namespace WCFServer.NetTcp
 {
