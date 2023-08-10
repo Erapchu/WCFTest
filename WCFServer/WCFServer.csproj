@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetPipe\StringReverser.cs" />
+    <Compile Include="NetTcp\LargeObjectService.cs" />
     <Compile Include="NetTcp\StringDuplicator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

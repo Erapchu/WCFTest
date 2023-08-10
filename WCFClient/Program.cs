@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Discovery;
@@ -12,8 +13,10 @@ namespace WCFClient
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Type 1 to start Net.Pipe WCF service client.");
-            Console.WriteLine("Type 2 to start Net.Tcp WCF service client.");
+            Console.WriteLine($"Type 1 to start Net.Pipe WCF {nameof(IStringReverser)} service client.");
+            Console.WriteLine($"Type 2 to start Net.Tcp WCF {nameof(IStringDuplicator)} service client.");
+            Console.WriteLine($"Type 3 to start Net.Tcp WCF {nameof(ILargeObjectService)} buffered service client.");
+            Console.WriteLine($"Type 4 to start Net.Tcp WCF {nameof(ILargeObjectService)} streamed service client.");
 
             int result;
             while (!int.TryParse(Console.ReadLine(), out result)) { }
@@ -23,87 +26,23 @@ namespace WCFClient
                     StartWcfNetPipe();
                     break;
                 case 2:
-                    StartWcfNetTcp();
+                    {
+                        var tcpProxy = StartWcfNetTcp<IStringDuplicator>(TransferMode.Buffered);
+                        WorkWithDuplicator(tcpProxy);
+                    }
                     break;
-            }
-        }
-
-        private static void StartWcfNetTcp()
-        {
-            //Find service host
-            var endpointDiscoveryMetadata = FindService();
-            if (endpointDiscoveryMetadata is null)
-            {
-                Console.WriteLine("Please, firstly start a host.");
-                Console.ReadLine();
-                return;
-            }
-            foreach (var listenUri in endpointDiscoveryMetadata.ListenUris)
-                Console.WriteLine($"Finded address: {listenUri}");
-
-            //Endpoint address
-            var availableEndpointAddress = endpointDiscoveryMetadata.ListenUris.FirstOrDefault();
-            var endpointAddress = new EndpointAddress(availableEndpointAddress);
-
-            //Net Tcp Binding
-            var binding = new NetTcpBinding();
-            binding.Security.Mode = SecurityMode.None;
-
-            //Channel factory
-            var tcpFactory = new ChannelFactory<IStringDuplicator>(binding, endpointAddress);
-            tcpFactory.Endpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
-            IStringDuplicator tcpProxy = tcpFactory.CreateChannel();
-
-            Console.WriteLine($"Created Net Tcp channel on endpoint: \"{tcpFactory.Endpoint.ListenUri}\"");
-            Console.WriteLine("Enter some text to send it on server:");
-
-            while (true)
-            {
-                try
-                {
-                    string str = Console.ReadLine();
-                    Console.WriteLine("Sync response: " + tcpProxy.MakeDuplicate(str));
-
-                    var res = Task.Factory.FromAsync(tcpProxy.BeginServiceAsyncMethod(str, (a) => { }, null), (a) => tcpProxy.EndServiceAsyncMethod(a)).Result;
-                    Console.WriteLine("Async response: " + res);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-
-        private static EndpointDiscoveryMetadata FindService()
-        {
-            //Create Discovery Client
-            DiscoveryClient discoveryClient = new DiscoveryClient(new UdpDiscoveryEndpoint());
-
-            //Create Find Criteria
-            var findCriteria = new FindCriteria(typeof(IStringDuplicator))
-            {
-                Duration = TimeSpan.FromSeconds(1)
-            };
-
-            //Searching
-            FindResponse findResponse = null;
-            for (int i = 0; i < 11; i++)
-            {
-                Console.WriteLine($"{i + 1} attempt to find server with duration {findCriteria.Duration}");
-                findResponse = discoveryClient.Find(findCriteria);
-                if (findResponse.Endpoints.Count > 0)
+                case 3:
+                    {
+                        var tcpProxy = StartWcfNetTcp<ILargeObjectService>(TransferMode.Buffered, 4_294_967_296L);
+                        WorkWithLargeDataStreaming(tcpProxy);
+                    }
                     break;
-                findCriteria.Duration += TimeSpan.FromSeconds(1);
-            }
-            discoveryClient.Close();
-
-            if (findResponse.Endpoints.Count > 0)
-            {
-                return findResponse.Endpoints[0];
-            }
-            else
-            {
-                return null;
+                case 4:
+                    {
+                        var tcpProxy = StartWcfNetTcp<ILargeObjectService>(TransferMode.Streamed, 4_294_967_296L);
+                        WorkWithLargeDataStreaming(tcpProxy);
+                    }
+                    break;
             }
         }
 
@@ -122,6 +61,74 @@ namespace WCFClient
                 string str = Console.ReadLine();
                 Console.WriteLine("Server: " + pipeProxy.ReverseString(str));
             }
+        }
+
+        private static T StartWcfNetTcp<T>(TransferMode transferMode, long maxReceivedMessageSize = 65536L)
+        {
+            //Find service host
+            var endpointDiscoveryMetadata = FindServiceHelper.FindService<T>();
+            if (endpointDiscoveryMetadata is null)
+            {
+                Console.WriteLine("Please, firstly start a host.");
+                Console.ReadLine();
+                return default;
+            }
+            foreach (var listenUri in endpointDiscoveryMetadata.ListenUris)
+                Console.WriteLine($"Finded address: {listenUri}");
+
+            //Endpoint address
+            var availableEndpointAddress = endpointDiscoveryMetadata.ListenUris.FirstOrDefault();
+            var endpointAddress = new EndpointAddress(availableEndpointAddress);
+
+            //Net Tcp Binding
+            var binding = new NetTcpBinding();
+            binding.Security.Mode = SecurityMode.None;
+            binding.TransferMode = transferMode;
+            binding.MaxReceivedMessageSize = maxReceivedMessageSize;
+
+            //Channel factory
+            var tcpFactory = new ChannelFactory<T>(binding, endpointAddress);
+            tcpFactory.Endpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
+            T tcpProxy = tcpFactory.CreateChannel();
+
+            Console.WriteLine($"Created Net Tcp channel on endpoint: \"{tcpFactory.Endpoint.ListenUri}\"");
+
+            return tcpProxy;
+        }
+
+        private static void WorkWithDuplicator(IStringDuplicator tcpProxy)
+        {
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Enter some text to send it on server:");
+
+                    string str = Console.ReadLine();
+                    Console.WriteLine("Sync response: " + tcpProxy.MakeDuplicate(str));
+
+                    var res = Task.Factory.FromAsync(tcpProxy.BeginServiceAsyncMethod(str, (a) => { }, null), (a) => tcpProxy.EndServiceAsyncMethod(a)).Result;
+                    Console.WriteLine("Async response: " + res);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        private static void WorkWithLargeDataStreaming(ILargeObjectService tcpProxy)
+        {
+            var largeObject = tcpProxy.GetLargeObject();
+            var ms = new MemoryStream();
+            //largeObject.CopyTo(ms);
+            byte[] array = new byte[81920];
+            int count;
+            while ((count = largeObject.Read(array, 0, array.Length)) != 0)
+            {
+                ms.Write(array, 0, count);
+            }
+            var result = ms.ToArray();
         }
     }
 }

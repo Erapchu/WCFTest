@@ -13,8 +13,10 @@ namespace WCFServer
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Type 1 to start Net.Pipe WCF service host.");
-            Console.WriteLine("Type 2 to start Net.Tcp WCF service host.");
+            Console.WriteLine($"Type 1 to start Net.Pipe {nameof(IStringReverser)} WCF service host.");
+            Console.WriteLine($"Type 2 to start Net.Tcp {nameof(IStringDuplicator)} WCF service host.");
+            Console.WriteLine($"Type 3 to start Net.Tcp {nameof(ILargeObjectService)} WCF buffered service host.");
+            Console.WriteLine($"Type 4 to start Net.Tcp {nameof(ILargeObjectService)} WCF streaming service host.");
 
             int result;
             while (!int.TryParse(Console.ReadLine(), out result)) { }
@@ -25,6 +27,12 @@ namespace WCFServer
                     break;
                 case 2:
                     StartWcfNetTcp();
+                    break;
+                case 3:
+                    StartWcfNetTcpStreaming(TransferMode.Buffered);
+                    break;
+                case 4:
+                    StartWcfNetTcpStreaming(TransferMode.Streamed);
                     break;
             }
         }
@@ -79,6 +87,44 @@ namespace WCFServer
                 Console.WriteLine("Service is available. Press <ENTER> to exit.");
                 Console.ReadLine();
 
+                host.Close();
+            }
+        }
+
+        private static void StartWcfNetTcpStreaming(TransferMode transferMode)
+        {
+            using (var host = new ServiceHost(typeof(LargeObjectService), new Uri($"net.tcp://{Dns.GetHostName()}")))
+            {
+                //Net Tcp Binding
+                var binding = new NetTcpBinding();
+                binding.Security.Mode = SecurityMode.None;
+                binding.TransferMode = transferMode;
+                // Not required for server (it can receive 64 KB by default)
+                //if (transferMode == TransferMode.Streamed)
+                //{
+                //    binding.MaxReceivedMessageSize = 4_294_967_296L;
+                //}
+
+                //Endpoint (target)
+                var duplicatorEndpoint = host.AddServiceEndpoint(typeof(ILargeObjectService), binding, "TcpLargeObject");
+                duplicatorEndpoint.ListenUriMode = System.ServiceModel.Description.ListenUriMode.Unique;
+
+                //Discovery behavior and endpoint
+                host.Description.Behaviors.Add(new ServiceDiscoveryBehavior());
+                /*var discoveryBehavior = new ServiceDiscoveryBehavior();
+                discoveryBehavior.AnnouncementEndpoints.Add(new UdpAnnouncementEndpoint());
+                host.Description.Behaviors.Add(discoveryBehavior);*/
+                host.AddServiceEndpoint(new UdpDiscoveryEndpoint());
+
+                //Open service
+                host.Open();
+
+                foreach (var channelDispatcher in host.ChannelDispatchers)
+                    Console.WriteLine($"Endpoint Uri: {channelDispatcher.Listener?.Uri}");
+                Console.WriteLine("Service is available. Press <ENTER> to exit.");
+                Console.ReadLine();
+
+                //Close service
                 host.Close();
             }
         }
