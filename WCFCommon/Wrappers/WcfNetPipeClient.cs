@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using WCFCommon.Interfaces;
+﻿using WCFCommon.Interfaces;
 
-namespace AutoUpdater.Common.Communications
+namespace WCFCommon.Wrappers
 {
     public class WcfNetPipeClient<T>: WcfServiceClient<T> where T : IWcfBase
     {

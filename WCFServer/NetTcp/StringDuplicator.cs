@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ServiceModel;
-using System.Threading;
+using WCFCommon.WCF;
+using WCFCommon.WCF.NetTcp;
 
-namespace WCFCommon.WCF.NetTcp
+namespace WCFServer.NetTcp
 {
     [ServiceBehavior(AddressFilterMode = AddressFilterMode.Any)]
     public class StringDuplicator : IStringDuplicator
@@ -11,7 +12,7 @@ namespace WCFCommon.WCF.NetTcp
         {
             //Thread.Sleep(10000);
             Console.WriteLine("BeginServiceAsyncMethod called with: \"{0}\"", msg);
-            return new CompletedAsyncResult<string>(msg);
+            return new CompletedAsyncResult<string>(MakeDuplicate(msg));
         }
 
         public string EndServiceAsyncMethod(IAsyncResult result)
