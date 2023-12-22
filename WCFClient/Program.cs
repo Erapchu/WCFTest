@@ -60,7 +60,7 @@ namespace WCFClient
             {
                 string str = Console.ReadLine();
                 Console.WriteLine("Server: " + pipeProxy.ReverseString(str));
-                var response = pipeProxy.TestMethod(new WCFCommon.Class1() { Test = "aaa"});
+                var response = pipeProxy.TestMethod(new WCFCommon.Class1() { Test = str });
             }
         }
 
