@@ -1,4 +1,5 @@
-﻿using WCFCommon.WCF.NetPipe;
+﻿using WCFCommon;
+using WCFCommon.WCF.NetPipe;
 
 namespace WCFServer.NetPipe
 {
@@ -16,6 +17,11 @@ namespace WCFServer.NetPipe
                 retVal[idx++] = value[i];
 
             return new string(retVal);
+        }
+
+        public Class1 TestMethod(Class1 test)
+        {
+            return test;
         }
     }
 }
